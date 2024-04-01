@@ -5,6 +5,8 @@ using UnityEngine;
 public class ChessPiece : MonoBehaviour
 {
 
+    [SerializeField]
+    SelectType type;
     Renderer renderers;
 
     private void Start()
@@ -14,11 +16,11 @@ public class ChessPiece : MonoBehaviour
 
     private void OnMouseDown()
     {
-        FindAnyObjectByType<SelectedManager>().SetOutline(renderers);
+        FindAnyObjectByType<SelectedManager>().SetSelectedMaterial(renderers , type);
     }
 
     private void OnMouseUp()
     {
-        FindAnyObjectByType<SelectedManager>().ReleaseOutline(renderers); 
+        FindAnyObjectByType<SelectedManager>().SetMaterial(renderers, type); 
     }
 }
