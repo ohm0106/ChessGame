@@ -13,13 +13,19 @@ MonoBehaviour:
   m_Name: Chess Material Data
   m_EditorClassIdentifier: 
   chessMaterial:
-  - type: 1
+  - type: 100
     material: {fileID: 2100000, guid: c0165960283e5604ca3ddec04c50a367, type: 2}
-  - type: 2
+  - type: 200
     material: {fileID: 2100000, guid: e181ad0b6f6c64a459c1a26119b14c2c, type: 2}
-  - type: 3
-    material: {fileID: 2100000, guid: 4308659d7dd975f449a784f56c0c0f60, type: 2}
-  - type: 4
+  - type: 101
+    material: {fileID: 2100000, guid: 3fecb4eba40751544bb802f6a298e2e6, type: 2}
+  - type: 201
     material: {fileID: 2100000, guid: 94667a054d55a214da1349bf6c0c50fe, type: 2}
-  - type: 5
-    material: {fileID: 0}
+  - type: 310
+    material: {fileID: 2100000, guid: 8ff5309403ab38642b3d95eb22f38673, type: 2}
+  - type: 300
+    material: {fileID: 2100000, guid: c27fa28ae54255a49b61504f22d38399, type: 2}
+  - type: 301
+    material: {fileID: 2100000, guid: b92eb60bf4d129a4cba4d62f502f1cc6, type: 2}
+  - type: 302
+    material: {fileID: 2100000, guid: cfdbd72d54baa0b41bfc2ec342561999, type: 2}
