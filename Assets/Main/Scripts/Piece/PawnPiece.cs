@@ -10,22 +10,22 @@ public class PawnPiece : ChessPiece
 
     protected override void Start()
     {
-        base.Start();   
-        SetPatterns();
+        base.Start();
         chessType = ChessPieceType.Pawn;
     }
 
     protected override void SetPatterns()
     {
         base.SetPatterns();
-       
+
         if (isFirst)
         {
-            ChessPattern chessPattern = new ChessPattern(2, 0, 0, 0, 0, 0, 0, 0);
+            PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col);
+            PieceManager.Instance.SetSelectableBoard(row + (2 * Direction), col);
         }
         else
         {
-            ChessPattern chessPattern = new ChessPattern(1, 0, 0, 0, 0, 0, 0, 0);
+            PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col);
         }
 
     }
@@ -42,12 +42,9 @@ public class PawnPiece : ChessPiece
             }
             PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col);
             SetColRow(row, col);
-            SetPatterns();
+            
         }
     }
 
-    public override ChessPattern GetPatterns()
-    {
-        return base.GetPatterns();
-    }
+
 }

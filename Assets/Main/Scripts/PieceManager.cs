@@ -86,7 +86,7 @@ public class PieceManager : Singleton<PieceManager>
         }
     }
 
-    bool CheckExistChessPieces(int row, int col)
+    public bool CheckExistChessPieces(int row, int col)
     {
         if (object.ReferenceEquals(existChessPieces[row, col], null))
         {
@@ -112,39 +112,31 @@ public class PieceManager : Singleton<PieceManager>
        // Debug.Log(name + "/" + row + " / " + col);
     }
 
-    public void SetSelectableBoard()
+    public bool SetSelectableBoard(int rValue, int cValue)
     {
-        ChessPattern tempPattern = curChessPiece.GetPatterns();
-        int[] tempRC = curChessPiece.GetColRow();
-        if (tempPattern == null)
-            return;
-        for (int r = tempRC[0]; r < tempPattern.up ; r++)
+        int r = Mathf.Clamp(rValue, -1, 8);
+        int c = Mathf.Clamp(cValue, -1, 8);
+
+        if (c < col &&  c > -1 && r < row && r > -1)
         {
-
-            int c = tempRC[1];
-            Debug.Log("row" + r + " / rol" + c);
-
-            if (r < col &&  r > -1 )
+            if (CheckExistChessPieces(r, c))
             {
-                if (CheckExistChessPieces(r, c))
-                {
-                    // 다른 색의 말이 있다면 해당 말 잡을 수 있게 
-                  
-                    break;
-                }
-                else
-                {
-                    boardPieces[r, c].SetSelectableValue(true);
+                // 다른 색의 말이 있다면 해당 말 잡을 수 있게 
+                return false;
+            }
+            else
+            {
+                boardPieces[r, c].SetSelectableValue(true);
 
-                    SetMaterial(GetBoardRenderer(r, c), SelectType.Board_Selectable);
-                }
-
+                SetMaterial(GetBoardRenderer(r, c), SelectType.Board_Selectable);
+                return true;
             }
 
         }
-
-       
-
+        else
+        {
+            return false;
+        }
     }
 
     Renderer GetBoardRenderer(int row, int col)
@@ -204,13 +196,11 @@ public class PieceManager : Singleton<PieceManager>
                     ResetAllBoard();
                     tempType = SelectType.ChessPiece_White_Selected;
                     SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
-                    SetSelectableBoard();
                     break;
                 case SelectType.ChessPiece_Default_Black:
                     ResetAllBoard();
                     tempType = SelectType.ChessPiece_Black_Selected;
                     SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
-                    SetSelectableBoard();
                     break;
                 case SelectType.Board_Default_Black:
                 case SelectType.Board_Default_White:

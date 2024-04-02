@@ -25,9 +25,9 @@ public class ChessPiece : Piece
 
 
 
-    protected  ChessPattern chessPatterns;
+    protected  List<ChessPattern> chessPatterns;
 
-    protected int Value
+    protected int Direction
     {
         get
         {
@@ -46,6 +46,7 @@ public class ChessPiece : Piece
         base.OnMouseDown();
 
         MoveToggle(true);
+        SetPatterns();
 
     }
 
@@ -76,7 +77,7 @@ public class ChessPiece : Piece
         return isUp;
     }
 
-    public virtual ChessPattern GetPatterns()
+    public virtual List<ChessPattern> GetPatterns()
     {
 
         return chessPatterns;

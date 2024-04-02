@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BishopPiece : ChessPiece
@@ -10,18 +8,27 @@ public class BishopPiece : ChessPiece
        
         chessType = ChessPieceType.Bishop;
 
-        SetPatterns();
     }
 
 
     protected override void SetPatterns()
     {
         base.SetPatterns();
-        for (int i = 0; i < 8; i++)
+        int r = 0; 
+        for (int c = col; c < 8; c ++)
         {
-            chessPatterns = new ChessPattern(0, 0, 0, 0, 8, 8, 8, 8);
+            PieceManager.Instance.SetSelectableBoard(row + (r * Direction), c);
+            PieceManager.Instance.SetSelectableBoard(row - (r * Direction), c);
+            r++;
         }
-       
+        r = 0;
+        for (int c = col; c > -1; c --)
+        {
+            PieceManager.Instance.SetSelectableBoard(row + (r * Direction), c);
+            PieceManager.Instance.SetSelectableBoard(row - (r * Direction), c);
+            r++;
+        }
+
     }
 
     public override void SetLocalPosition(Vector3 endPoint, int row, int col)
@@ -31,7 +38,6 @@ public class BishopPiece : ChessPiece
         {
             PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col);
             SetColRow(row, col);
-            SetPatterns();
         }
     }
 

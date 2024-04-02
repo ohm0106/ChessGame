@@ -4871,7 +4871,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 100
   row: 0
-  col: 0
+  col: 6
   isBlack: 0
 --- !u!4 &1256515721 stripped
 Transform:
@@ -4977,7 +4977,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 100
   row: 0
-  col: 0
+  col: 7
   isBlack: 0
 --- !u!4 &1319208778 stripped
 Transform:

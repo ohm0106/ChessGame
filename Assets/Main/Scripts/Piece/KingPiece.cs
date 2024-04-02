@@ -10,14 +10,22 @@ public class KingPiece : ChessPiece
 
         chessType = ChessPieceType.Bishop;
 
-        SetPatterns();
     }
 
 
     protected override void SetPatterns()
     {
         base.SetPatterns();
-        chessPatterns = new ChessPattern(1, 1, 1, 1, 1, 1, 1, 1);
+
+        PieceManager.Instance.SetSelectableBoard(row , col + (1 * Direction));
+        PieceManager.Instance.SetSelectableBoard(row , col - (1 * Direction));
+        PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col);
+        PieceManager.Instance.SetSelectableBoard(row - (1 * Direction), col);
+        PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col + (1 * Direction));
+        PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col - (1 * Direction));
+        PieceManager.Instance.SetSelectableBoard(row - (1 * Direction), col - (1 * Direction));
+        PieceManager.Instance.SetSelectableBoard(row - (1 * Direction), col + (1 * Direction));
+
     }
 
     public override void SetLocalPosition(Vector3 endPoint, int row, int col)
@@ -27,7 +35,7 @@ public class KingPiece : ChessPiece
         {
             PieceManager.Instance.SetExistChessPieces(this.row,this.col, row, col);
             SetColRow(row, col);
-            SetPatterns();
+         
         }
     }
 

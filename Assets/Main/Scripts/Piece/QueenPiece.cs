@@ -18,7 +18,7 @@ public class QueenPiece : ChessPiece
     {
         base.SetPatterns();
 
-        chessPatterns = new ChessPattern(8, 8, 8, 8, 8, 8, 8, 8);
+       // chessPatterns = new ChessPattern(8, 8, 8, 8, 8, 8, 8, 8);
     }
 
     public override void SetLocalPosition(Vector3 endPoint, int row, int col)

@@ -4,25 +4,25 @@ using UnityEngine;
 
 public class ChessPattern
 {
-    public int up;
-    public int down;
-    public int left;
-    public int right;
-    public int upleft;
-    public int upright;
-    public int downleft;
-    public int downright;
+    int col;
 
-    public ChessPattern(int up, int down, int left, int right, int upleft, int upright, int downleft, int downright)
+    int row;
+
+    public ChessPattern(int row, int col)
     {
-        this.up = up;
-        this.down = down;
-        this.left = left;
-        this.right = right;
-        this.upleft = upleft;
-        this.upright = upright;
-        this.downleft = downleft;
-        this.downright = downright;
+        this.row = row;
+        this.col = col;
+    }
+
+    public int getCol()
+    {
+        return col;
+
+    }
+
+    public int getRow()
+    {
+        return row;
     }
 
 }
