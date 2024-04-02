@@ -29,17 +29,16 @@ public class PieceManager : Singleton<PieceManager>
 
     List<ChessPiece>  blackChessPieces;
     List<ChessPiece> whiteChessPieces;
-
-    ChessPiece curActivePiece;
-
+    ChessPiece curChessPiece;
 
     int row = 8;
     int col = 8;
     BoardPiece[,] boardPieces;
+    BoardPiece curBoardPieces;
 
-
-    void Awake()
+    protected override void InternalAwake()
     {
+        base.InternalAwake();
         Init();
     }
 
@@ -65,9 +64,9 @@ public class PieceManager : Singleton<PieceManager>
         int c;
         foreach (var piece in boardPiecesTemp)
         {
-
             ConvertNameToIndices(piece.gameObject.name, out r, out c);
             boardPieces[r, c] = piece;
+            piece.SetColRow(r, c);
         }
     }
 
@@ -82,10 +81,43 @@ public class PieceManager : Singleton<PieceManager>
     void Start()
     {
         selectMaterialDics = new Dictionary<SelectType, Material>();
+
         for (int i = 0; i < chessMaterialData.ChessMaterial.Length; i++)
         {
             ChessMaterial chessMaterial = chessMaterialData.ChessMaterial[i];
             selectMaterialDics.Add(chessMaterial.type, chessMaterial.material);
+        }
+    }
+
+    public void SetSelectableBoard()
+    {
+        // todo : 추후 보드 패턴으로 변경
+        List<ChessPattern> tempList = curChessPiece.GetPatterns();
+        if (tempList == null)
+            return;
+        for (int i = 0; i < tempList.Count ; i++)
+        {
+            int row = tempList[i].GetRow();
+            int col = tempList[i].Getcol();
+
+            SetMaterial(GetBoardRenderer(row, col), SelectType.Board_Selectable);
+        }
+    }
+
+    Renderer GetBoardRenderer(int row, int col)
+    {
+        return boardPieces[row, col].GetRenderer();
+    }
+
+    public void ResetAllBoard()
+    {
+        for(int r = 0; r < row ; r++)
+        {
+            for(int c = 0; c< col; c++)
+            {
+                Debug.Log("r" + r + "c" + c);
+                SetMaterial(boardPieces[r, c].GetRenderer(), boardPieces[r, c].GetSelectType());
+            }
         }
     }
 
@@ -95,7 +127,7 @@ public class PieceManager : Singleton<PieceManager>
             return;
         
        
-        if(selectMaterialDics.ContainsKey(type))
+        if(selectMaterialDics.ContainsKey(type) && renderers.material != selectMaterialDics[type])
         {
             renderers.material = selectMaterialDics[type];
         }
@@ -115,17 +147,29 @@ public class PieceManager : Singleton<PieceManager>
             switch (type)
             {
                 case SelectType.ChessPiece_Default_White:
+                    ResetAllBoard();
                     tempType = SelectType.ChessPiece_White_Selected;
                     SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
+                    SetSelectableBoard();
                     break;
                 case SelectType.ChessPiece_Default_Black:
+                    ResetAllBoard();
                     tempType = SelectType.ChessPiece_Black_Selected;
                     SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
+                    SetSelectableBoard();
                     break;
                 case SelectType.Board_Default_Black:
                 case SelectType.Board_Default_White:
                     tempType = SelectType.Board_Selected;
 
+                    curBoardPieces = renderers.GetComponent<BoardPiece>();
+                    if (curChessPiece && curChessPiece.GetMoveUp())
+                    {
+                        Vector3 destination = new Vector3(curBoardPieces.transform.localPosition.x, 1f, curBoardPieces.transform.localPosition.z);
+                        int[] temp = curBoardPieces.GetColRow();
+                        curChessPiece.SetLocalPosition(destination , temp[0] , temp[1]);
+                        curChessPiece = null;
+                    }
                     break;
             }
         }
@@ -141,12 +185,16 @@ public class PieceManager : Singleton<PieceManager>
 
     void SetCurrentActiveChessPiece(ChessPiece chessPiece)
     {
-        if (curActivePiece != null)
-            curActivePiece.MoveToggle();
+        if (curChessPiece != null)
+            curChessPiece.MoveToggle();
 
-        curActivePiece = chessPiece;
+        curChessPiece = chessPiece;
     }
 
+    public void SetBoardPiecesNull()
+    {
+        curBoardPieces = null;
+    }
 
 
 }
