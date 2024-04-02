@@ -23,12 +23,9 @@ public class ChessPiece : Piece
     bool isUp = false;
     bool isMove = false;
 
-    [SerializeField]
-    protected int col;
-    [SerializeField]
-    protected int row;
 
-    protected  List<ChessPattern> chessPatterns;
+
+    protected  ChessPattern chessPatterns;
 
     protected int Value
     {
@@ -41,7 +38,7 @@ public class ChessPiece : Piece
     protected override void Start()
     {
         base.Start();
-        SetPatterns();
+        
     }
 
     protected override void OnMouseDown()
@@ -79,7 +76,7 @@ public class ChessPiece : Piece
         return isUp;
     }
 
-    public virtual List<ChessPattern> GetPatterns()
+    public virtual ChessPattern GetPatterns()
     {
 
         return chessPatterns;
@@ -90,15 +87,10 @@ public class ChessPiece : Piece
 
     }
 
+
     public ChessPieceType GetChessPieceType() { return chessType; }
 
-    protected void setColRow(int col, int row)
-    {
-        this.col = col;
-        this.row = row;
-    }
-
-    public virtual void SetLocalPosition(Vector3 endPoint , int col, int row)
+    public virtual void SetLocalPosition(Vector3 endPoint , int row, int col)
     {
         isMove = true;
         transform.DOLocalMove(endPoint, 0.5f).OnComplete(() => isMove = false);
@@ -111,6 +103,4 @@ public class ChessPiece : Piece
 
        
     }
-
-   
 }

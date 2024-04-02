@@ -8,6 +8,12 @@ public class Piece : MonoBehaviour
     SelectType type;
     Renderer renderer;
 
+    
+    [SerializeField]
+    protected int row;
+    [SerializeField]
+    protected int col;
+
     protected virtual void Start()
     {
         renderer = this.GetComponent<Renderer>();
@@ -31,5 +37,18 @@ public class Piece : MonoBehaviour
     {
         return renderer;
     }
+
+    public void SetColRow(int row, int col)
+    {
+        this.col = col;
+        this.row = row;
+    }
+
+    public int[] GetColRow()
+    {
+        int[] temp = { row, col };
+        return temp;
+    }
+
 }
 

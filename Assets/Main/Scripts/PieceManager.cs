@@ -21,14 +21,15 @@ public enum SelectType
 
 public class PieceManager : Singleton<PieceManager>
 {
-    
+
     [SerializeField]
     ChessMaterialData chessMaterialData;
 
     Dictionary<SelectType, Material> selectMaterialDics;
 
-    List<ChessPiece>  blackChessPieces;
+    List<ChessPiece> blackChessPieces;
     List<ChessPiece> whiteChessPieces;
+    ChessPiece[,] existChessPieces;
     ChessPiece curChessPiece;
 
     int row = 8;
@@ -42,42 +43,6 @@ public class PieceManager : Singleton<PieceManager>
         Init();
     }
 
-    void Init()
-    {
-        var chessPiecesTemp = FindObjectsOfType<ChessPiece>();
-
-        blackChessPieces = new List<ChessPiece>();
-        whiteChessPieces = new List<ChessPiece>();
-
-        foreach (var arr in chessPiecesTemp)
-        {
-            if (arr.GetSelectType() == SelectType.ChessPiece_Default_White)
-                blackChessPieces.Add(arr);
-            else
-                whiteChessPieces.Add(arr);
-        }
-
-        var boardPiecesTemp = FindObjectsOfType<BoardPiece>();
-        boardPieces = new BoardPiece[row, col];
-
-        int r;
-        int c;
-        foreach (var piece in boardPiecesTemp)
-        {
-            ConvertNameToIndices(piece.gameObject.name, out r, out c);
-            boardPieces[r, c] = piece;
-            piece.SetColRow(r, c);
-        }
-    }
-
-    void ConvertNameToIndices(string name, out int row, out int col)
-    {
-        col = name[0] - 'A';
-
-        row = int.Parse(name.Substring(1)) - 1;
-        Debug.Log(name + "/" + row + " / " + col);
-    }
-
     void Start()
     {
         selectMaterialDics = new Dictionary<SelectType, Material>();
@@ -89,35 +54,124 @@ public class PieceManager : Singleton<PieceManager>
         }
     }
 
+    void Init()
+    {
+        var boardPiecesTemp = FindObjectsOfType<BoardPiece>();
+        boardPieces = new BoardPiece[row, col];
+        existChessPieces = new ChessPiece[row, col];
+
+        int r;
+        int c;
+        foreach (var piece in boardPiecesTemp)
+        {
+            ConvertNameToIndices(piece.gameObject.name, out r, out c);
+            boardPieces[r, c] = piece;
+            piece.SetColRow(r, c);
+        }
+
+        var chessPiecesTemp = FindObjectsOfType<ChessPiece>();
+
+        blackChessPieces = new List<ChessPiece>();
+        whiteChessPieces = new List<ChessPiece>();
+
+        foreach (var arr in chessPiecesTemp)
+        {
+            if (arr.GetSelectType() == SelectType.ChessPiece_Default_White)
+                blackChessPieces.Add(arr);
+            else
+                whiteChessPieces.Add(arr);
+
+            int[] temp = arr.GetColRow();
+            existChessPieces[temp[0], temp[1]] = arr;
+        }
+    }
+
+    bool CheckExistChessPieces(int row, int col)
+    {
+        if (object.ReferenceEquals(existChessPieces[row, col], null))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    public void SetExistChessPieces(int preRow, int preCol, int curRow, int curCol)
+    {
+        if (CheckExistChessPieces(preRow, preCol))
+        {
+            existChessPieces[curRow, curCol] = existChessPieces[preRow, preCol];
+            existChessPieces[preRow, preCol] = null;
+        }
+    }
+
+    void ConvertNameToIndices(string name, out int row, out int col)
+    {
+        col = name[0] - 'A';
+
+        row = int.Parse(name.Substring(1)) - 1;
+       // Debug.Log(name + "/" + row + " / " + col);
+    }
+
     public void SetSelectableBoard()
     {
-        // todo : 추후 보드 패턴으로 변경
-        List<ChessPattern> tempList = curChessPiece.GetPatterns();
-        if (tempList == null)
+        ChessPattern tempPattern = curChessPiece.GetPatterns();
+        int[] tempRC = curChessPiece.GetColRow();
+        if (tempPattern == null)
             return;
-        for (int i = 0; i < tempList.Count ; i++)
+        for (int r = tempRC[0]; r < tempPattern.up ; r++)
         {
-            int row = tempList[i].GetRow();
-            int col = tempList[i].Getcol();
 
-            SetMaterial(GetBoardRenderer(row, col), SelectType.Board_Selectable);
+            int c = tempRC[1];
+            Debug.Log("row" + r + " / rol" + c);
+
+            if (r < col &&  r > -1 )
+            {
+                if (CheckExistChessPieces(r, c))
+                {
+                    // 다른 색의 말이 있다면 해당 말 잡을 수 있게 
+                  
+                    break;
+                }
+                else
+                {
+                    boardPieces[r, c].SetSelectableValue(true);
+
+                    SetMaterial(GetBoardRenderer(r, c), SelectType.Board_Selectable);
+                }
+
+            }
+
         }
+
+       
+
     }
 
     Renderer GetBoardRenderer(int row, int col)
     {
         return boardPieces[row, col].GetRenderer();
     }
+    BoardPiece GetBoardPiece(int row, int col)
+    {
+        return boardPieces[row, col];
+    }
 
     public void ResetAllBoard()
     {
         for(int r = 0; r < row ; r++)
         {
-            for(int c = 0; c< col; c++)
+            for (int c = 0; c < col; c++)
             {
-                Debug.Log("r" + r + "c" + c);
-                SetMaterial(boardPieces[r, c].GetRenderer(), boardPieces[r, c].GetSelectType());
-            }
+                //Debug.Log("r" + r + "c" + c);
+                Renderer tempRenderer = boardPieces[r, c].GetRenderer();
+                SelectType selectType = boardPieces[r, c].GetSelectType();
+                if (tempRenderer != selectMaterialDics[selectType])
+                {
+                    // 딕셔너리에 있는 렌더러랑 같은 것인지 확인 후 bool 값 확인 
+                    boardPieces[r, c].SetSelectableValue(false);
+                    SetMaterial(tempRenderer, selectType);
+                }
+            }    
         }
     }
 
@@ -160,15 +214,25 @@ public class PieceManager : Singleton<PieceManager>
                     break;
                 case SelectType.Board_Default_Black:
                 case SelectType.Board_Default_White:
+                   
                     tempType = SelectType.Board_Selected;
-
+                  
+                  
                     curBoardPieces = renderers.GetComponent<BoardPiece>();
-                    if (curChessPiece && curChessPiece.GetMoveUp())
+                    if (curChessPiece && curChessPiece.GetMoveUp() && curBoardPieces.GetSelectableValue())
                     {
                         Vector3 destination = new Vector3(curBoardPieces.transform.localPosition.x, 1f, curBoardPieces.transform.localPosition.z);
                         int[] temp = curBoardPieces.GetColRow();
-                        curChessPiece.SetLocalPosition(destination , temp[0] , temp[1]);
-                        curChessPiece = null;
+                          if(CheckExistChessPieces(temp[0],temp[1]) == false)
+                          {
+                            if (curChessPiece)
+                            {
+                                int[] preTemp = curChessPiece.GetColRow();
+                            }
+                            curChessPiece.SetLocalPosition(destination, temp[0], temp[1]);
+                            curChessPiece = null;
+                        }
+                  
                     }
                     break;
             }
