@@ -112,10 +112,10 @@ public class ChessPiece : Piece
     public virtual void SetLocalPosition(Vector3 endPoint , int row, int col)
     {
         isMove = true;
-        transform.DOLocalMove(endPoint, 0.5f).OnComplete(() => { isMove = false; isUp = false; });
-        
+        transform.DOLocalMove(endPoint, 0.5f).OnComplete(() => { isMove = false;  });
 
-    
+        isUp = false;
+
         PieceManager.Instance.ResetAllBoard();
 
        
