@@ -25,7 +25,15 @@ public class PawnPiece : ChessPiece
         }
         else
         {
-            PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col);
+            if (PieceManager.Instance.CheckExistChessPieces(row + (1 * Direction), col + (1 * Direction))){
+
+                PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col + (1 * Direction));
+            }
+            if (PieceManager.Instance.CheckExistChessPieces(row + (1 * Direction), col - (1 * Direction)))
+            {
+                PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col - (1 * Direction));
+            }
+            PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col , true);
         }
 
     }

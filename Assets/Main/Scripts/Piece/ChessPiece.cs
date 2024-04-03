@@ -22,7 +22,7 @@ public class ChessPiece : Piece
 
     bool isUp = false;
     bool isMove = false;
-
+    bool canHit = false;
 
     protected  List<ChessPattern> chessPatterns;
 
@@ -43,9 +43,16 @@ public class ChessPiece : Piece
     protected override void OnMouseDown()
     {
         base.OnMouseDown();
-
-        MoveToggle(true);
-        SetPatterns();
+        if (!canHit)
+        {
+            PieceManager.Instance.SetSelectedMaterial(renderer, type);
+            MoveToggle(true);
+            SetPatterns();
+        }
+        else
+        {
+            PieceManager.Instance.SetSelectedMaterial(renderer, SelectType.ChessPiece_Hit);
+        }
 
     }
 
@@ -95,19 +102,21 @@ public class ChessPiece : Piece
 
     }
 
+    public void SetCanHit(bool isCan)
+    {
+        canHit = isCan;
+    }
 
     public ChessPieceType GetChessPieceType() { return chessType; }
 
     public virtual void SetLocalPosition(Vector3 endPoint , int row, int col)
     {
         isMove = true;
-        transform.DOLocalMove(endPoint, 0.5f).OnComplete(() => isMove = false);
-        isUp = false;
-
-       // 이동하는 구간에 상대 말이 있을 경우 또는 우리 편 말이 있을 경우
+        transform.DOLocalMove(endPoint, 0.5f).OnComplete(() => { isMove = false; isUp = false; });
+        
 
     
-       PieceManager.Instance.ResetAllBoard();
+        PieceManager.Instance.ResetAllBoard();
 
        
     }

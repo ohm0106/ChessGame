@@ -9,6 +9,7 @@ using UnityEngine;
 // 게임 매니저 생성 
 // UI 인터페이스 제작 
 // Scene Manager 제작 
+// Object Pooling 추가 
 
 public enum SelectType
 {
@@ -17,6 +18,7 @@ public enum SelectType
     ChessPiece_Default_Black = 200, // 블랙
     ChessPiece_White_Selected = 101, // 흰색 체스 말 선택
     ChessPiece_Black_Selected = 201, // 블랙 체스 말 선택
+    ChessPiece_Hit = 001,
     Board_Default_White = 310,
     Board_Default_Black = 300,
     Board_Selected = 301, // 선택된 보드 판
@@ -90,9 +92,9 @@ public class PieceManager : Singleton<PieceManager>
         }
     }
 
-    public bool CheckExistChessPieces(int row, int col)
+    public bool CheckExistChessPieces(int r, int c)
     {
-        if (object.ReferenceEquals(existChessPieces[row, col], null))
+        if (c < col && c > -1 && r < row && r > -1 && object.ReferenceEquals(existChessPieces[r, c], null))
         {
             return false;
         }
@@ -121,7 +123,7 @@ public class PieceManager : Singleton<PieceManager>
        // Debug.Log(name + "/" + row + " / " + col);
     }
 
-    public bool SetSelectableBoard(int rValue, int cValue)
+    public bool SetSelectableBoard(int rValue, int cValue , bool isIgnore = false)
     {
         int r = Mathf.Clamp(rValue, -1, 8);
         int c = Mathf.Clamp(cValue, -1, 8);
@@ -131,11 +133,13 @@ public class PieceManager : Singleton<PieceManager>
             if (CheckExistChessPieces(r, c))
             {
                 // 색깔이 다를 경우 활성화 ( 추후 체스 말 머티리얼을 변경하는 방법도 고려 할 것.) 
-                if(curChessPiece.GetColor() != existChessPieces[r, c])
+                if( !CheckColorBetweenChess(curChessPiece,r,c) && !isIgnore)
                 {
                     boardPieces[r, c].SetSelectableValue(true);
 
                     SetMaterial(GetBoardRenderer(r, c), SelectType.Board_Selectable);
+
+                    existChessPieces[r, c].SetCanHit(true);
                 }
                 return false;
             }
@@ -170,6 +174,11 @@ public class PieceManager : Singleton<PieceManager>
                     boardPieces[r, c].SetSelectableValue(false);
                     SetMaterial(tempRenderer, selectType);
                 }
+
+                if(!(object.ReferenceEquals(existChessPieces[r, c], null)))
+                {
+                    existChessPieces[r, c].SetCanHit(false);
+                }
             }    
         }
     }
@@ -200,34 +209,67 @@ public class PieceManager : Singleton<PieceManager>
             switch (type)
             {
                 case SelectType.ChessPiece_Default_White:
+                   
+                  
                     ResetAllBoard();
                     tempType = SelectType.ChessPiece_White_Selected;
                     SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
+                    
+                    
                     break;
                 case SelectType.ChessPiece_Default_Black:
+                   
                     ResetAllBoard();
                     tempType = SelectType.ChessPiece_Black_Selected;
                     SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
+                
+                    break;
+                case SelectType.ChessPiece_Hit:
+                    int[] tempB = renderers.GetComponent<ChessPiece>().GetColRow();
+                    if (curChessPiece && curChessPiece.GetMoveUp() && boardPieces[tempB[0], tempB[1]].GetSelectableValue())
+                    {
+                        Vector3 destination = new Vector3(renderers.transform.localPosition.x, 1f, renderers.transform.localPosition.z);
+
+                        if (CheckExistChessPieces(tempB[0], tempB[1]))
+                        {
+                            if (!CheckColorBetweenChess(curChessPiece, tempB[0], tempB[1]))
+                            {
+                                Destroy(existChessPieces[tempB[0], tempB[1]].gameObject);
+                                curChessPiece.SetLocalPosition(destination, tempB[0], tempB[1]);
+                                curChessPiece = null;
+                                ResetAllBoard();
+                            }
+                        }
+
+                    }
                     break;
                 case SelectType.Board_Default_Black:
                 case SelectType.Board_Default_White:
-                   
                     tempType = SelectType.Board_Selected;
-                  
                   
                     curBoardPieces = renderers.GetComponent<BoardPiece>();
                     if (curChessPiece && curChessPiece.GetMoveUp() && curBoardPieces.GetSelectableValue())
                     {
                         Vector3 destination = new Vector3(curBoardPieces.transform.localPosition.x, 1f, curBoardPieces.transform.localPosition.z);
                         int[] temp = curBoardPieces.GetColRow();
-                          if(CheckExistChessPieces(temp[0],temp[1]) == false)
-                          {
+                        if(CheckExistChessPieces(temp[0],temp[1]) == false)
+                        {
                             if (curChessPiece)
                             {
                                 int[] preTemp = curChessPiece.GetColRow();
                             }
                             curChessPiece.SetLocalPosition(destination, temp[0], temp[1]);
                             curChessPiece = null;
+                        }
+                        else
+                        {
+                            if (!CheckColorBetweenChess(curChessPiece, temp[0], temp[1]))
+                            {
+                                Destroy(existChessPieces[temp[0], temp[1]].gameObject);
+                                curChessPiece.SetLocalPosition(destination, temp[0], temp[1]);
+                                curChessPiece = null;
+                                ResetAllBoard();
+                            }
                         }
                   
                     }
@@ -244,6 +286,29 @@ public class PieceManager : Singleton<PieceManager>
         }
     }
 
+    bool CheckColorBetweenChess(ChessPiece chessPiece,int r, int c)
+    {
+        if (existChessPieces[r, c].GetColor() == chessPiece.GetColor())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    bool CheckColorBetweenChess(ChessPiece chessPiece)
+    {
+
+        if (curChessPiece.GetColor() == chessPiece.GetColor())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     void SetCurrentActiveChessPiece(ChessPiece chessPiece)
     {
         if (curChessPiece != null)

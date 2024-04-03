@@ -16,6 +16,7 @@ public class BoardPiece : Piece
     protected override void OnMouseDown()
     {
         base.OnMouseDown();
+        PieceManager.Instance.SetSelectedMaterial(renderer, type);
     }
 
     protected override void OnMouseUp()

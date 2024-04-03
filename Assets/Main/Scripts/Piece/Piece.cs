@@ -5,8 +5,8 @@ using UnityEngine;
 public class Piece : MonoBehaviour
 {
     [SerializeField]
-    SelectType type;
-    Renderer renderer;
+    protected  SelectType type;
+    protected Renderer renderer;
 
     
     [SerializeField]
@@ -21,7 +21,7 @@ public class Piece : MonoBehaviour
 
     protected virtual void OnMouseDown()
     {
-       PieceManager.Instance.SetSelectedMaterial(renderer, type);
+   
     }
 
     protected virtual void OnMouseUp()
