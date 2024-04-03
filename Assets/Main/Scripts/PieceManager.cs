@@ -3,6 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//[ToDoList] 순서대로 할 것. 
+// 말 공격 여부 확인 
+// 말 공격 애니메이션 제작 
+// 게임 매니저 생성 
+// UI 인터페이스 제작 
+// Scene Manager 제작 
 
 public enum SelectType
 {
