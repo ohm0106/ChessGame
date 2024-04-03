@@ -14,19 +14,55 @@ public class BishopPiece : ChessPiece
     protected override void SetPatterns()
     {
         base.SetPatterns();
-        int r = 0; 
-        for (int c = col; c < 8; c ++)
+        int d = 0;
+        bool isCheck;
+        //´ë°¢¼± 
+        for (int c = col + 1; c < 8; c++)
         {
-            PieceManager.Instance.SetSelectableBoard(row + (r * Direction), c);
-            PieceManager.Instance.SetSelectableBoard(row - (r * Direction), c);
-            r++;
+            d++;
+            isCheck = PieceManager.Instance.SetSelectableBoard(row + (d * Direction), c);
+
+            if (!isCheck)
+            {
+                Debug.Log("break!" + c + " / " + (row + (d * Direction)));
+                break;
+            }
+
         }
-        r = 0;
-        for (int c = col; c > -1; c --)
+        d = 0;
+        for (int c = col + 1; c < 8; c++)
         {
-            PieceManager.Instance.SetSelectableBoard(row + (r * Direction), c);
-            PieceManager.Instance.SetSelectableBoard(row - (r * Direction), c);
-            r++;
+            d++;
+            isCheck = PieceManager.Instance.SetSelectableBoard(row - (d * Direction), c);
+
+            if (!isCheck)
+            {
+                Debug.Log("break!" + c + " / " + (row - (d * Direction)));
+                break;
+            }
+        }
+        d = 0;
+        for (int c = col - 1; c > -1; c--)
+        {
+            d++;
+            isCheck = PieceManager.Instance.SetSelectableBoard(row + (d * Direction), c);
+
+            if (!isCheck)
+            {
+                Debug.Log("break!" + c + " / " + (row + (d * Direction)));
+                break;
+            }
+        }
+        d = 0;
+        for (int c = col - 1; c > -1; c--)
+        {
+            d++;
+            isCheck = PieceManager.Instance.SetSelectableBoard(row - (d * Direction), c);
+            if (!isCheck)
+            {
+                Debug.Log("break!" + c + " / " + (row - (d * Direction)));
+                break;
+            }
         }
 
     }

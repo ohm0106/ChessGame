@@ -16,7 +16,6 @@ public class BoardPiece : Piece
     protected override void OnMouseDown()
     {
         base.OnMouseDown();
-
     }
 
     protected override void OnMouseUp()

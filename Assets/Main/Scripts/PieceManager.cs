@@ -15,8 +15,6 @@ public enum SelectType
     Board_Default_Black = 300,
     Board_Selected = 301, // 선택된 보드 판
     Board_Selectable  = 302// 선택 가능한 보드 판 
-
-
 }
 
 public class PieceManager : Singleton<PieceManager>
@@ -101,6 +99,11 @@ public class PieceManager : Singleton<PieceManager>
         {
             existChessPieces[curRow, curCol] = existChessPieces[preRow, preCol];
             existChessPieces[preRow, preCol] = null;
+            //Debug.Log("cur" + existChessPieces[curRow, curCol].gameObject.name + " / Check " + (existChessPieces[preRow, preCol] == null));
+        }
+        else
+        {
+            existChessPieces[curRow, curCol] = curChessPiece;
         }
     }
 
@@ -121,7 +124,13 @@ public class PieceManager : Singleton<PieceManager>
         {
             if (CheckExistChessPieces(r, c))
             {
-                // 다른 색의 말이 있다면 해당 말 잡을 수 있게 
+                // 색깔이 다를 경우 활성화 ( 추후 체스 말 머티리얼을 변경하는 방법도 고려 할 것.) 
+                if(curChessPiece.GetColor() != existChessPieces[r, c])
+                {
+                    boardPieces[r, c].SetSelectableValue(true);
+
+                    SetMaterial(GetBoardRenderer(r, c), SelectType.Board_Selectable);
+                }
                 return false;
             }
             else
@@ -139,14 +148,6 @@ public class PieceManager : Singleton<PieceManager>
         }
     }
 
-    Renderer GetBoardRenderer(int row, int col)
-    {
-        return boardPieces[row, col].GetRenderer();
-    }
-    BoardPiece GetBoardPiece(int row, int col)
-    {
-        return boardPieces[row, col];
-    }
 
     public void ResetAllBoard()
     {
@@ -249,6 +250,13 @@ public class PieceManager : Singleton<PieceManager>
     {
         curBoardPieces = null;
     }
-
+    Renderer GetBoardRenderer(int row, int col)
+    {
+        return boardPieces[row, col].GetRenderer();
+    }
+    BoardPiece GetBoardPiece(int row, int col)
+    {
+        return boardPieces[row, col];
+    }
 
 }

@@ -9,7 +9,7 @@ public enum ChessPieceType
     Queen,
     Knight,
     Bishop,
-    Look,
+    Rook,
     Pawn
 }
 
@@ -22,7 +22,6 @@ public class ChessPiece : Piece
 
     bool isUp = false;
     bool isMove = false;
-
 
 
     protected  List<ChessPattern> chessPatterns;
@@ -65,6 +64,14 @@ public class ChessPiece : Piece
             transform.DOLocalMoveY(degreeY, 0.5f).OnComplete(() => isMove = false);
             this.isUp = isUp;
         }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns> Black = true / White = false </returns>
+    public bool GetColor()
+    {
+        return isBlack;
     }
 
     public bool GetMove()
