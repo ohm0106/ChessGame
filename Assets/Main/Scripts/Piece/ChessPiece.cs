@@ -5,6 +5,7 @@ using DG.Tweening;
 
 public enum ChessPieceType
 {
+    None,
     King,
     Queen,
     Knight,
@@ -15,7 +16,7 @@ public enum ChessPieceType
 
 public class ChessPiece : Piece
 {
-    protected ChessPieceType chessType;
+    protected ChessPieceType chessType = ChessPieceType.None;
 
     [SerializeField]
     protected bool isBlack = false;
@@ -34,9 +35,9 @@ public class ChessPiece : Piece
         }
     }
 
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
         
     }
 
@@ -72,10 +73,7 @@ public class ChessPiece : Piece
             this.isUp = isUp;
         }
     }
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns> Black = true / White = false </returns>
+
     public bool GetColor()
     {
         return isBlack;
@@ -89,12 +87,6 @@ public class ChessPiece : Piece
     public bool GetMoveUp()
     {
         return isUp;
-    }
-
-    public virtual List<ChessPattern> GetPatterns()
-    {
-
-        return chessPatterns;
     }
 
     protected virtual void SetPatterns()
@@ -112,12 +104,15 @@ public class ChessPiece : Piece
     public virtual void SetLocalPosition(Vector3 endPoint , int row, int col)
     {
         isMove = true;
-        transform.DOLocalMove(endPoint, 0.5f).OnComplete(() => { isMove = false;  });
-
+        transform.DOLocalMove(endPoint, 0.5f).OnComplete(() => { isMove = false; });
         isUp = false;
 
         PieceManager.Instance.ResetAllBoard();
+    }
 
-       
+    public virtual bool CheckKing(int rValue, int cValue)
+    {
+        return false;
+
     }
 }

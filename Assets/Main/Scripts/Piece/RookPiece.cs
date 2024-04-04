@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class RookPiece : ChessPiece
 {
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
 
         chessType = ChessPieceType.Rook;
     }
@@ -52,5 +52,45 @@ public class RookPiece : ChessPiece
             PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col);
             SetColRow(row, col);
         }
+    }
+
+    public override bool CheckKing(int rValue, int cValue)
+    {
+        int degree = 0;
+        int direction = 0;
+
+        if (col == cValue)
+        {
+            degree = rValue - row ;
+            direction = degree < 0 ? -1 : 1;
+            Debug.Log("[" + chessType + "] check col" + degree + " / " + direction);
+            for(int i = 1; i < degree; i++)
+            {
+                if (PieceManager.Instance.CheckExistChessPieces(row + (i * direction), col))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        if (row == rValue)
+        {
+            degree = cValue - col;
+            direction = degree < 0 ? -1 : 1;
+            Debug.Log("[" + chessType + "] check row" + degree + " / " + direction);
+            for (int i = 1; i < degree; i++)
+            {
+                if (PieceManager.Instance.CheckExistChessPieces(row , col + (i * direction)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false; 
     }
 }

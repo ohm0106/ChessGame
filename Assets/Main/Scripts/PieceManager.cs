@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //[ToDoList] 순서대로 할 것. 
-// 말 공격 여부 확인 
+// 말 공격 여부 확인 ( 완료 )
 // 말 공격 애니메이션 제작 
 // 게임 매니저 생성 
 // UI 인터페이스 제작 
@@ -37,6 +37,8 @@ public class PieceManager : Singleton<PieceManager>
     List<ChessPiece> whiteChessPieces;
     ChessPiece[,] existChessPieces;
     ChessPiece curChessPiece;
+    ChessPiece whiteKingChess;
+    ChessPiece blackKingChess;
 
     int row = 8;
     int col = 8;
@@ -46,11 +48,12 @@ public class PieceManager : Singleton<PieceManager>
     protected override void InternalAwake()
     {
         base.InternalAwake();
-        Init();
+        
     }
 
     void Start()
     {
+        Init();
         selectMaterialDics = new Dictionary<SelectType, Material>();
 
         for (int i = 0; i < chessMaterialData.ChessMaterial.Length; i++)
@@ -82,10 +85,18 @@ public class PieceManager : Singleton<PieceManager>
 
         foreach (var arr in chessPiecesTemp)
         {
-            if (arr.GetSelectType() == SelectType.ChessPiece_Default_White)
+            if (arr.GetSelectType() == SelectType.ChessPiece_Default_White) {
                 blackChessPieces.Add(arr);
+                if (arr.GetChessPieceType() == ChessPieceType.King)
+                    blackKingChess = arr;
+            }
             else
+            {
                 whiteChessPieces.Add(arr);
+                if (arr.GetChessPieceType() == ChessPieceType.King)
+                    whiteKingChess = arr;
+            }
+              
 
             int[] temp = arr.GetColRow();
             existChessPieces[temp[0], temp[1]] = arr;
@@ -107,6 +118,7 @@ public class PieceManager : Singleton<PieceManager>
         {
             existChessPieces[curRow, curCol] = existChessPieces[preRow, preCol];
             existChessPieces[preRow, preCol] = null;
+
             //Debug.Log("cur" + existChessPieces[curRow, curCol].gameObject.name + " / Check " + (existChessPieces[preRow, preCol] == null));
         }
         else
@@ -209,16 +221,12 @@ public class PieceManager : Singleton<PieceManager>
             switch (type)
             {
                 case SelectType.ChessPiece_Default_White:
-                   
-                  
                     ResetAllBoard();
                     tempType = SelectType.ChessPiece_White_Selected;
                     SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
-                    
-                    
+
                     break;
                 case SelectType.ChessPiece_Default_Black:
-                   
                     ResetAllBoard();
                     tempType = SelectType.ChessPiece_Black_Selected;
                     SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
@@ -234,10 +242,11 @@ public class PieceManager : Singleton<PieceManager>
                         {
                             if (!CheckColorBetweenChess(curChessPiece, tempB[0], tempB[1]))
                             {
-                                Destroy(existChessPieces[tempB[0], tempB[1]].gameObject);
+                                DistroyChessPiece(existChessPieces[tempB[0], tempB[1]]);
                                 curChessPiece.SetLocalPosition(destination, tempB[0], tempB[1]);
+                                existChessPieces[tempB[0], tempB[1]] = curChessPiece;
                                 curChessPiece = null;
-                                ResetAllBoard();
+                                ResetAllBoard(); 
                             }
                         }
 
@@ -259,14 +268,16 @@ public class PieceManager : Singleton<PieceManager>
                                 int[] preTemp = curChessPiece.GetColRow();
                             }
                             curChessPiece.SetLocalPosition(destination, temp[0], temp[1]);
+                            existChessPieces[temp[0], temp[1]] = curChessPiece;
                             curChessPiece = null;
                         }
                         else
                         {
                             if (!CheckColorBetweenChess(curChessPiece, temp[0], temp[1]))
                             {
-                                Destroy(existChessPieces[temp[0], temp[1]].gameObject);
+                                DistroyChessPiece(existChessPieces[temp[0], temp[1]]);
                                 curChessPiece.SetLocalPosition(destination, temp[0], temp[1]);
+                                existChessPieces[temp[0], temp[1]] = curChessPiece;
                                 curChessPiece = null;
                                 ResetAllBoard();
                             }
@@ -299,7 +310,6 @@ public class PieceManager : Singleton<PieceManager>
     }
     bool CheckColorBetweenChess(ChessPiece chessPiece)
     {
-
         if (curChessPiece.GetColor() == chessPiece.GetColor())
         {
             return true;
@@ -309,6 +319,14 @@ public class PieceManager : Singleton<PieceManager>
             return false;
         }
     }
+    void DistroyChessPiece(ChessPiece chessPiece)
+    {
+        (chessPiece.GetColor() ? whiteChessPieces : blackChessPieces).Remove(chessPiece);
+        //Todo : 제거되는 체스 말이 '킹'일 때 게임 종료 처리
+
+        Destroy(chessPiece.gameObject);
+    }
+
     void SetCurrentActiveChessPiece(ChessPiece chessPiece)
     {
         if (curChessPiece != null)
@@ -330,4 +348,18 @@ public class PieceManager : Singleton<PieceManager>
         return boardPieces[row, col];
     }
 
+    public bool CheckKing(bool isBlack)
+    {
+        ChessPiece kingTemp = isBlack ? whiteKingChess : blackKingChess;
+        int[] tempPos = kingTemp.GetColRow();
+
+        foreach (var arr in (isBlack ?blackChessPieces : whiteChessPieces))
+        {
+            if(arr.CheckKing(tempPos[0], tempPos[1]))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -8,9 +8,9 @@ public class PawnPiece : ChessPiece
     bool isFirst = true;
     bool isAttack = false; // todo : 어택 가능할 경우 패턴이 변경 됨. 
 
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
         chessType = ChessPieceType.Pawn;
     }
 
@@ -25,7 +25,7 @@ public class PawnPiece : ChessPiece
         }
         else
         {
-            if (PieceManager.Instance.CheckExistChessPieces(row + (1 * Direction), col + (1 * Direction))){
+            if (PieceManager.Instance.CheckExistChessPieces(row + (1 * Direction), col + (1 * Direction))) {
 
                 PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col + (1 * Direction));
             }
@@ -33,7 +33,7 @@ public class PawnPiece : ChessPiece
             {
                 PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col - (1 * Direction));
             }
-            PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col , true);
+            PieceManager.Instance.SetSelectableBoard(row + (1 * Direction), col, true);
         }
 
     }
@@ -46,13 +46,24 @@ public class PawnPiece : ChessPiece
             if (isFirst)
             {
                 isFirst = false;
-              
+
             }
             PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col);
             SetColRow(row, col);
-            
+
         }
     }
 
+    public override bool CheckKing(int rValue, int cValue)
+    {
+        if ((row + (1 * Direction) == rValue) && (col == cValue))
+            return true;
 
+
+        if ((row + (2 * Direction) == rValue) && (col == cValue))
+            return true;
+
+
+        return false;
+    }
 }

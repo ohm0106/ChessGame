@@ -14,7 +14,7 @@ public class Piece : MonoBehaviour
     [SerializeField]
     protected int col;
 
-    protected virtual void Start()
+    protected virtual void Awake()
     {
         renderer = this.GetComponent<Renderer>();
     }

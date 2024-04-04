@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class BishopPiece : ChessPiece
 {
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
        
         chessType = ChessPieceType.Bishop;
 
@@ -75,6 +75,35 @@ public class BishopPiece : ChessPiece
             PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col);
             SetColRow(row, col);
         }
+    }
+
+    public override bool CheckKing(int rValue, int cValue)
+    {
+        int degreeR= rValue - row;
+        int degreeC = cValue - col;
+        int directionR ;
+        int directionC ;
+
+        if (col != cValue && row != rValue)
+        {
+            int degree = degreeR > degreeC ? degreeR : degreeC;
+            directionR = degreeR < 0 ? -1 : 1;
+            directionC = degreeC < 0 ? -1 : 1;
+            Debug.Log("[" + chessType + "] check" + degree + " / " + directionR + " / " + directionC);
+            for (int i = 1; i < degree; i++)
+            {
+                if (PieceManager.Instance.CheckExistChessPieces(row + (i * directionR), col + (i * directionC)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        //[Todo] 킹의 이동 경로가 없을 경우 Check 로 변경 되게끔 바꿀 것. 
+
+        return false;
     }
 
 }

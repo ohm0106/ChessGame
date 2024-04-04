@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class QueenPiece : ChessPiece
 {
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
 
         chessType = ChessPieceType.Queen;
     }
@@ -101,5 +101,65 @@ public class QueenPiece : ChessPiece
             PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col);
             SetColRow(row, col);
         }
+    }
+
+    public override bool CheckKing(int rValue, int cValue)
+    {
+        int degreeR = rValue - row;
+        int degreeC = cValue - col;
+        int directionR;
+        int directionC;
+
+        if (col != cValue && row != rValue)
+        {
+            int degree = degreeR > degreeC ? degreeR : degreeC;
+            directionR = degreeR < 0 ? -1 : 1;
+            directionC = degreeC < 0 ? -1 : 1;
+            Debug.Log("[" + chessType + "] check" + degree + " / " + directionR + " / " + directionC);
+            for (int i = 1; i < degree; i++)
+            {
+                if (PieceManager.Instance.CheckExistChessPieces(row + (i * directionR), col + (i * directionC)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        if (col == cValue)
+        {
+            degreeR = rValue - row;
+            directionR = degreeR < 0 ? -1 : 1;
+            Debug.Log("[" + chessType + "] check col" + degreeR + " / " + directionR);
+            for (int i = 1; i < degreeR; i++)
+            {
+                if (PieceManager.Instance.CheckExistChessPieces(row + (i * directionR), col))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        if (row == rValue)
+        {
+            degreeC = cValue - col;
+            directionC = degreeC < 0 ? -1 : 1;
+            Debug.Log("[" + chessType + "] check row" + degreeC + " / " + directionC);
+            for (int i = 1; i < degreeC; i++)
+            {
+                if (PieceManager.Instance.CheckExistChessPieces(row, col + (i * directionC)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
+        return false; 
     }
 }

@@ -8,9 +8,9 @@ public class BoardPiece : Piece
 {
     bool isSeletable = false;
 
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
     }
 
     protected override void OnMouseDown()

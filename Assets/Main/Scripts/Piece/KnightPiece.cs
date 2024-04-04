@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class KnightPiece : ChessPiece
 {
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
 
-        chessType = ChessPieceType.Bishop;
+        chessType = ChessPieceType.Knight;
 
     }
 
@@ -36,5 +36,23 @@ public class KnightPiece : ChessPiece
             SetColRow(row, col);
 
         }
+    }
+
+    public override bool CheckKing(int rValue, int cValue)
+    {
+        int degreeR = rValue - row;
+        int degreeC = cValue - col;
+        int directionR = degreeR < 0 ? -1 : 1;
+        int directionC = degreeC < 0 ? -1 : 1;
+
+        if ((row + (1 * directionR) == rValue) && (col + (2 * directionC) == cValue))
+            return true;
+
+
+        if ((row + (2 * directionR) == rValue) && (col + (1 * directionC) == cValue))
+            return true;
+
+
+        return false;
     }
 }

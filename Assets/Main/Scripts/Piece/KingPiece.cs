@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class KingPiece : ChessPiece
 {
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
 
-        chessType = ChessPieceType.Bishop;
-
+        chessType = ChessPieceType.King;
     }
 
 
@@ -35,8 +34,8 @@ public class KingPiece : ChessPiece
         {
             PieceManager.Instance.SetExistChessPieces(this.row,this.col, row, col);
             SetColRow(row, col);
-         
         }
     }
+
 
 }
