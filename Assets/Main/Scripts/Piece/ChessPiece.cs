@@ -44,6 +44,10 @@ public class ChessPiece : Piece
     protected override void OnMouseDown()
     {
         base.OnMouseDown();
+
+        if (GameManager.Instance.GetTurn() != isBlack)
+            return;
+
         if (!canHit)
         {
             PieceManager.Instance.SetSelectedMaterial(renderer, type);
@@ -71,6 +75,8 @@ public class ChessPiece : Piece
             isMove = true;
             transform.DOLocalMoveY(degreeY, 0.5f).OnComplete(() => isMove = false);
             this.isUp = isUp;
+
+         
         }
     }
 
@@ -91,7 +97,6 @@ public class ChessPiece : Piece
 
     protected virtual void SetPatterns()
     {
-
     }
 
     public void SetCanHit(bool isCan)
@@ -108,6 +113,7 @@ public class ChessPiece : Piece
         isUp = false;
 
         PieceManager.Instance.ResetAllBoard();
+        GameManager.Instance.SetTurn(!isBlack);
     }
 
     public virtual bool CheckKing(int rValue, int cValue)

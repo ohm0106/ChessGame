@@ -45,6 +45,8 @@ public class PieceManager : Singleton<PieceManager>
     BoardPiece[,] boardPieces;
     BoardPiece curBoardPieces;
 
+    bool IsBlackTurn { get { return GameManager.Instance.GetTurn(); } }
+
     protected override void InternalAwake()
     {
         base.InternalAwake();
@@ -65,42 +67,44 @@ public class PieceManager : Singleton<PieceManager>
 
     void Init()
     {
-        var boardPiecesTemp = FindObjectsOfType<BoardPiece>();
-        boardPieces = new BoardPiece[row, col];
-        existChessPieces = new ChessPiece[row, col];
+ 
+            var boardPiecesTemp = FindObjectsOfType<BoardPiece>();
+            boardPieces = new BoardPiece[row, col];
+            existChessPieces = new ChessPiece[row, col];
 
-        int r;
-        int c;
-        foreach (var piece in boardPiecesTemp)
-        {
-            ConvertNameToIndices(piece.gameObject.name, out r, out c);
-            boardPieces[r, c] = piece;
-            piece.SetColRow(r, c);
-        }
-
-        var chessPiecesTemp = FindObjectsOfType<ChessPiece>();
-
-        blackChessPieces = new List<ChessPiece>();
-        whiteChessPieces = new List<ChessPiece>();
-
-        foreach (var arr in chessPiecesTemp)
-        {
-            if (arr.GetSelectType() == SelectType.ChessPiece_Default_White) {
-                blackChessPieces.Add(arr);
-                if (arr.GetChessPieceType() == ChessPieceType.King)
-                    blackKingChess = arr;
-            }
-            else
+            int r;
+            int c;
+            foreach (var piece in boardPiecesTemp)
             {
-                whiteChessPieces.Add(arr);
-                if (arr.GetChessPieceType() == ChessPieceType.King)
-                    whiteKingChess = arr;
+                ConvertNameToIndices(piece.gameObject.name, out r, out c);
+                boardPieces[r, c] = piece;
+                piece.SetColRow(r, c);
             }
-              
 
-            int[] temp = arr.GetColRow();
-            existChessPieces[temp[0], temp[1]] = arr;
-        }
+
+            var chessPiecesTemp = FindObjectsOfType<ChessPiece>();
+
+            blackChessPieces = new List<ChessPiece>();
+            whiteChessPieces = new List<ChessPiece>();
+
+            foreach (var arr in chessPiecesTemp)
+            {
+                if (arr.GetSelectType() == SelectType.ChessPiece_Default_White)
+                {
+                    blackChessPieces.Add(arr);
+                    if (arr.GetChessPieceType() == ChessPieceType.King)
+                        blackKingChess = arr;
+                }
+                else
+                {
+                    whiteChessPieces.Add(arr);
+                    if (arr.GetChessPieceType() == ChessPieceType.King)
+                        whiteKingChess = arr;
+                }
+                int[] temp = arr.GetColRow();
+                existChessPieces[temp[0], temp[1]] = arr;
+            }
+
     }
 
     public bool CheckExistChessPieces(int r, int c)
@@ -214,6 +218,8 @@ public class PieceManager : Singleton<PieceManager>
 
     public void SetSelectedMaterial(Renderer renderers, SelectType type = SelectType.None)
     {
+        tempType = SelectType.None;
+
         if (type == SelectType.None)
             return;
         else
@@ -221,16 +227,20 @@ public class PieceManager : Singleton<PieceManager>
             switch (type)
             {
                 case SelectType.ChessPiece_Default_White:
-                    ResetAllBoard();
-                    tempType = SelectType.ChessPiece_White_Selected;
-                    SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
-
+                    if (!IsBlackTurn)
+                    {
+                        ResetAllBoard();
+                        tempType = SelectType.ChessPiece_White_Selected;
+                        SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
+                    }
                     break;
                 case SelectType.ChessPiece_Default_Black:
-                    ResetAllBoard();
-                    tempType = SelectType.ChessPiece_Black_Selected;
-                    SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
-                
+                    if (IsBlackTurn)
+                    {
+                        ResetAllBoard();
+                        tempType = SelectType.ChessPiece_Black_Selected;
+                        SetCurrentActiveChessPiece(renderers.GetComponent<ChessPiece>());
+                    }
                     break;
                 case SelectType.ChessPiece_Hit:
                     int[] tempB = renderers.GetComponent<ChessPiece>().GetColRow();
