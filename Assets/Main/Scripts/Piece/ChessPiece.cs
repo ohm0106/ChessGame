@@ -25,9 +25,9 @@ public class ChessPiece : Piece
     bool isMove = false;
     bool canHit = false;
 
-    protected  List<ChessPattern> chessPatterns;
+    protected List<ChessPattern> chessPatterns;
 
-    protected int Direction
+    public int Direction
     {
         get
         {
@@ -38,7 +38,7 @@ public class ChessPiece : Piece
     protected override void Awake()
     {
         base.Awake();
-        
+
     }
 
     protected override void OnMouseDown()
@@ -64,20 +64,29 @@ public class ChessPiece : Piece
     protected override void OnMouseUp()
     {
         base.OnMouseUp();
-        
+
     }
 
     public virtual void MoveToggle(bool isUp = false)
     {
-        if(this.isUp != isUp)
+        if (this.isUp != isUp)
         {
             float degreeY = isUp ? 3f : 1f;
             isMove = true;
             transform.DOLocalMoveY(degreeY, 0.5f).OnComplete(() => isMove = false);
             this.isUp = isUp;
 
-         
+
         }
+    }
+    public virtual void SetLocalPosition(Vector3 endPoint, int row, int col)
+    {
+        isMove = true;
+        transform.DOLocalMove(endPoint, 0.5f).OnComplete(() => { isMove = false; });
+        isUp = false;
+
+        PieceManager.Instance.ResetAllBoard();
+        GameManager.Instance.SetTurn(!isBlack);
     }
 
     public bool GetColor()
@@ -99,22 +108,13 @@ public class ChessPiece : Piece
     {
     }
 
+
     public void SetCanHit(bool isCan)
     {
         canHit = isCan;
     }
 
     public ChessPieceType GetChessPieceType() { return chessType; }
-
-    public virtual void SetLocalPosition(Vector3 endPoint , int row, int col)
-    {
-        isMove = true;
-        transform.DOLocalMove(endPoint, 0.5f).OnComplete(() => { isMove = false; });
-        isUp = false;
-
-        PieceManager.Instance.ResetAllBoard();
-        GameManager.Instance.SetTurn(!isBlack);
-    }
 
     public virtual bool CheckKing(int rValue, int cValue)
     {

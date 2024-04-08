@@ -106,4 +106,5 @@ public class BishopPiece : ChessPiece
         return false;
     }
 
+
 }

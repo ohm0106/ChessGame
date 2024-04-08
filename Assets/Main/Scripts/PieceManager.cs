@@ -372,4 +372,8 @@ public class PieceManager : Singleton<PieceManager>
         }
         return false;
     }
+
+    public ChessPiece[,] GetChessPieces() { return existChessPieces; }
+
+  
 }
