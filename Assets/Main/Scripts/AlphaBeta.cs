@@ -4,11 +4,17 @@ using UnityEngine;
 
 public class AlphaBeta : MonoBehaviour
 {
-    private const int MAX = int.MaxValue;
-    private const int MIN = int.MinValue;
+    private const int MAX = int.MaxValue; // User 
+    private const int MIN = int.MinValue; // AI Bot 
 
     ChessPiece[,] tempChess;
+    
+    // 0. 게임 종료 여부를 확인 한다 . ( 재귀 함수 이기 때문에 해당 내용 필수 ) 
+    // 1. 현재 체스판 상태를 가지고 온다.  ( 게임 상태 평가 : 흰 말 전체 점수 / 검정 말 전체 점수 )
+    // 2. Min Max 에 따라 말들의 전체 이동 경로를 가지고 온다. 
+    // 3. 움직임을 평가한다. 
 
+    //[Todo] : PieceManager에서 실시간 상태를 int 형으로 수치화 할 것. 
 
     public int[] FindBestMove(int depth)
     {
@@ -16,25 +22,78 @@ public class AlphaBeta : MonoBehaviour
         int beta = MAX;
         int bestValue = MIN;
         tempChess = PieceManager.Instance.GetChessPieces();
+        List<ChessPiece> tempColorChess = PieceManager.Instance.GetColorChessPieces(GameManager.Instance.GetTurn());
         int[] bestMove = new int[4]; // Direction
 
-        for (int r = 0; r < 8; r++)
+        List<int[]> possibleMove = new List<int[]>();
+
+        //이동 가능한 위치 
+        foreach (var piece in tempColorChess)
         {
-            for (int c = 0; c < 8; c++)
+            int[] rowcol = piece.GetColRow();
+            int r = rowcol[0];
+            int c = rowcol[1];
+
+            if (object.ReferenceEquals(tempChess[r, c], null))
             {
-                if (object.ReferenceEquals(tempChess[r, c], null))
-                {
-                    continue;
-                }
-
-                List<int[]> move = ChessPattern(r, c, tempChess[r, c].GetChessPieceType(), tempChess[r,c].Direction);
-
+                continue;
             }
+
+            List<int[]> move = ChessPattern(r, c, tempChess[r, c].GetChessPieceType(), tempChess[r, c].Direction);
+
+            foreach (var arr in move)
+            {
+                if (!possibleMove.Contains(arr))
+                    possibleMove.Add(arr);
+            }
+
+            
         }
+
+        foreach (var move in possibleMove)
+        {
+            // 움직임을 수행하고 보드 평가값을 얻음
+            // 이 코드는 각 움직임마다 보드를 업데이트하고 평가함
+            // 이 부분은 게임에 따라서 구현해야 함
+
+        }
+
+
+
 
         return null;
     }
 
+
+    private int EvaluateBoard(ChessPieceType type)
+    {
+        int evaluation = 0;
+        switch (type)
+        {
+            case ChessPieceType.Pawn:
+                evaluation += 10;
+                break;
+            case ChessPieceType.Rook:
+                evaluation += 30;
+                break;
+            case ChessPieceType.Knight:
+                evaluation += 60;
+                break;
+            case ChessPieceType.Bishop:
+                evaluation += 90;
+                break;
+            case ChessPieceType.Queen:
+                evaluation += 900;
+                break;
+            case ChessPieceType.King:
+                evaluation += 9000;
+                break;
+            default:
+                break;
+        }
+
+        return evaluation;
+    }
 
     public List<int[]> ChessPattern(int row, int col, ChessPieceType type, int direction)
     {
@@ -83,7 +142,7 @@ public class AlphaBeta : MonoBehaviour
                     int newCol = col + move[1];
 
                     // 새로운 위치가 체스보드 범위 안에 있으면서
-                    // 비어 있거나 상대방의 말이 있는 경우에만 추가합니다.
+                    // 비어 있거나 상대방의 말이 있는 경우에만 추가
                     if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8 &&
                         (IsSquareEmpty(newRow, newCol) || IsOpponentPiece(newRow, newCol)))
                     {

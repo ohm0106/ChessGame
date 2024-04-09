@@ -9,7 +9,8 @@ using UnityEngine;
 // 게임 매니저 생성 
 // UI 인터페이스 제작 
 // Scene Manager 제작 
-// Object Pooling 추가 
+// Object Pooling 추가
+// 알파 베타 가지치기 AI Bot 추가 
 
 public enum SelectType
 {
@@ -109,7 +110,7 @@ public class PieceManager : Singleton<PieceManager>
 
     public bool CheckExistChessPieces(int r, int c)
     {
-        if (c < col && c > -1 && r < row && r > -1 && object.ReferenceEquals(existChessPieces[r, c], null))
+        if ( object.ReferenceEquals(existChessPieces[r, c], null))
         {
             return false;
         }
@@ -120,7 +121,8 @@ public class PieceManager : Singleton<PieceManager>
     {
         if (CheckExistChessPieces(preRow, preCol))
         {
-            existChessPieces[curRow, curCol] = existChessPieces[preRow, preCol];
+            ChessPiece temp = existChessPieces[preRow, preCol];
+            existChessPieces[curRow, curCol] = temp;
             existChessPieces[preRow, preCol] = null;
 
             //Debug.Log("cur" + existChessPieces[curRow, curCol].gameObject.name + " / Check " + (existChessPieces[preRow, preCol] == null));
@@ -375,5 +377,9 @@ public class PieceManager : Singleton<PieceManager>
 
     public ChessPiece[,] GetChessPieces() { return existChessPieces; }
 
+    public List<ChessPiece> GetColorChessPieces (bool isBlack)
+    {
+        return isBlack ? blackChessPieces : whiteChessPieces;
+    }
   
 }

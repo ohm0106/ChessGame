@@ -45,10 +45,8 @@ public class ChessPiece : Piece
     {
         base.OnMouseDown();
 
-        if (GameManager.Instance.GetTurn() != isBlack)
-            return;
 
-        if (!canHit)
+        if (!canHit && GameManager.Instance.GetTurn() == isBlack)
         {
             PieceManager.Instance.SetSelectedMaterial(renderer, type);
             MoveToggle(true);
