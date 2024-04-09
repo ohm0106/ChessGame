@@ -34,9 +34,10 @@ public class PieceManager : Singleton<PieceManager>
 
     Dictionary<SelectType, Material> selectMaterialDics;
 
+    List<ChessPiece> chessPieces;
     List<ChessPiece> blackChessPieces;
     List<ChessPiece> whiteChessPieces;
-    ChessPiece[,] existChessPieces;
+    int[,] existChessPieces;
     ChessPiece curChessPiece;
     ChessPiece whiteKingChess;
     ChessPiece blackKingChess;
@@ -58,7 +59,7 @@ public class PieceManager : Singleton<PieceManager>
     {
         Init();
         selectMaterialDics = new Dictionary<SelectType, Material>();
-
+        selectMaterialDics.Add(SelectType.None, null);
         for (int i = 0; i < chessMaterialData.ChessMaterial.Length; i++)
         {
             ChessMaterial chessMaterial = chessMaterialData.ChessMaterial[i];
@@ -71,7 +72,7 @@ public class PieceManager : Singleton<PieceManager>
  
             var boardPiecesTemp = FindObjectsOfType<BoardPiece>();
             boardPieces = new BoardPiece[row, col];
-            existChessPieces = new ChessPiece[row, col];
+            existChessPieces = new int[row, col];
 
             int r;
             int c;
@@ -84,9 +85,11 @@ public class PieceManager : Singleton<PieceManager>
 
 
             var chessPiecesTemp = FindObjectsOfType<ChessPiece>();
-
+            chessPieces = new List<ChessPiece>();
             blackChessPieces = new List<ChessPiece>();
             whiteChessPieces = new List<ChessPiece>();
+
+            chessPieces.AddRange(chessPiecesTemp);
 
             foreach (var arr in chessPiecesTemp)
             {
@@ -103,33 +106,47 @@ public class PieceManager : Singleton<PieceManager>
                         whiteKingChess = arr;
                 }
                 int[] temp = arr.GetColRow();
-                existChessPieces[temp[0], temp[1]] = arr;
+                existChessPieces[temp[0], temp[1]] = (int)arr.GetChessPieceType();
             }
 
     }
 
     public bool CheckExistChessPieces(int r, int c)
     {
-        if ( object.ReferenceEquals(existChessPieces[r, c], null))
+        if (existChessPieces[r, c] == 0)
         {
             return false;
         }
         return true;
     }
 
-    public void SetExistChessPieces(int preRow, int preCol, int curRow, int curCol)
+    public void SetExistChessPieces(int[] perPos, int[] curPos , int value)
     {
-        if (CheckExistChessPieces(preRow, preCol))
+        if (CheckExistChessPieces(perPos[0], perPos[1]))
         {
-            ChessPiece temp = existChessPieces[preRow, preCol];
-            existChessPieces[curRow, curCol] = temp;
-            existChessPieces[preRow, preCol] = null;
+            existChessPieces[curPos[0], curPos[1]] = value;
+            existChessPieces[perPos[0], perPos[1]] = 0;
 
             //Debug.Log("cur" + existChessPieces[curRow, curCol].gameObject.name + " / Check " + (existChessPieces[preRow, preCol] == null));
         }
         else
         {
-            existChessPieces[curRow, curCol] = curChessPiece;
+            existChessPieces[curPos[0], curPos[1]] = value;
+        }
+    }
+
+    public void SetExistChessPieces(int perR , int perC, int curR , int curC, int value)
+    {
+        if (CheckExistChessPieces(perR, perC))
+        {
+            existChessPieces[curR, curC] = value;
+            existChessPieces[perR, perC] = 0;
+
+            //Debug.Log("cur" + existChessPieces[curRow, curCol].gameObject.name + " / Check " + (existChessPieces[preRow, preCol] == null));
+        }
+        else
+        {
+            existChessPieces[perR, perC] = value;
         }
     }
 
@@ -157,7 +174,7 @@ public class PieceManager : Singleton<PieceManager>
 
                     SetMaterial(GetBoardRenderer(r, c), SelectType.Board_Selectable);
 
-                    existChessPieces[r, c].SetCanHit(true);
+                    GetExistChessPiece(r, c).SetCanHit(false);
                 }
                 return false;
             }
@@ -193,9 +210,9 @@ public class PieceManager : Singleton<PieceManager>
                     SetMaterial(tempRenderer, selectType);
                 }
 
-                if(!(object.ReferenceEquals(existChessPieces[r, c], null)))
+                if(existChessPieces[r, c] != 0)
                 {
-                    existChessPieces[r, c].SetCanHit(false);
+                    GetExistChessPiece(r, c).SetCanHit(false);
                 }
             }    
         }
@@ -254,9 +271,9 @@ public class PieceManager : Singleton<PieceManager>
                         {
                             if (!CheckColorBetweenChess(curChessPiece, tempB[0], tempB[1]))
                             {
-                                DistroyChessPiece(existChessPieces[tempB[0], tempB[1]]);
+                                DistroyChessPiece(GetExistChessPiece(tempB[0], tempB[1]));
                                 curChessPiece.SetLocalPosition(destination, tempB[0], tempB[1]);
-                                existChessPieces[tempB[0], tempB[1]] = curChessPiece;
+                                existChessPieces[tempB[0], tempB[1]] = (int)curChessPiece.GetChessPieceType();
                                 curChessPiece = null;
                                 ResetAllBoard(); 
                             }
@@ -280,16 +297,16 @@ public class PieceManager : Singleton<PieceManager>
                                 int[] preTemp = curChessPiece.GetColRow();
                             }
                             curChessPiece.SetLocalPosition(destination, temp[0], temp[1]);
-                            existChessPieces[temp[0], temp[1]] = curChessPiece;
+                            existChessPieces[temp[0], temp[1]] = (int)curChessPiece.GetChessPieceType();
                             curChessPiece = null;
                         }
                         else
                         {
                             if (!CheckColorBetweenChess(curChessPiece, temp[0], temp[1]))
                             {
-                                DistroyChessPiece(existChessPieces[temp[0], temp[1]]);
+                                DistroyChessPiece(GetExistChessPiece(temp[0], temp[1]));
                                 curChessPiece.SetLocalPosition(destination, temp[0], temp[1]);
-                                existChessPieces[temp[0], temp[1]] = curChessPiece;
+                                existChessPieces[temp[0], temp[1]] = (int)curChessPiece.GetChessPieceType();
                                 curChessPiece = null;
                                 ResetAllBoard();
                             }
@@ -311,7 +328,7 @@ public class PieceManager : Singleton<PieceManager>
 
     bool CheckColorBetweenChess(ChessPiece chessPiece,int r, int c)
     {
-        if (existChessPieces[r, c].GetColor() == chessPiece.GetColor())
+        if (GetExistChessPiece(r, c).GetColor() == chessPiece.GetColor())
         {
             return true;
         }
@@ -333,6 +350,10 @@ public class PieceManager : Singleton<PieceManager>
     }
     void DistroyChessPiece(ChessPiece chessPiece)
     {
+        if (chessPiece == null)
+            return;
+
+
         (chessPiece.GetColor() ? whiteChessPieces : blackChessPieces).Remove(chessPiece);
         //Todo : 제거되는 체스 말이 '킹'일 때 게임 종료 처리
 
@@ -375,11 +396,22 @@ public class PieceManager : Singleton<PieceManager>
         return false;
     }
 
-    public ChessPiece[,] GetChessPieces() { return existChessPieces; }
+    public int[,] GetChessPieces() { return existChessPieces; }
 
     public List<ChessPiece> GetColorChessPieces (bool isBlack)
     {
         return isBlack ? blackChessPieces : whiteChessPieces;
     }
   
+    public ChessPiece GetExistChessPiece(int r, int c)
+    {
+        foreach(var arr in chessPieces)
+        {
+            int[] tempPos = arr.GetColRow();
+            if (r == tempPos[0] && c == tempPos[1])
+                return arr;
+        }
+
+        return null;
+    }
 }

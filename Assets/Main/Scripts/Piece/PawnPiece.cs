@@ -48,7 +48,7 @@ public class PawnPiece : ChessPiece
                 isFirst = false;
 
             }
-            PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col);
+            PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col, (int)chessType);
             SetColRow(row, col);
 
         }

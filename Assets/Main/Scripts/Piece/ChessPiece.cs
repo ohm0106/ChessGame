@@ -5,13 +5,13 @@ using DG.Tweening;
 
 public enum ChessPieceType
 {
-    None,
-    King,
-    Queen,
-    Knight,
-    Bishop,
-    Rook,
-    Pawn
+    None = 0,
+    King = 9000,
+    Queen = 900,
+    Knight = 90,
+    Bishop = 60,
+    Rook = 30,
+    Pawn = 10
 }
 
 public class ChessPiece : Piece

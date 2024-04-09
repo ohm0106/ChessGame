@@ -72,7 +72,7 @@ public class BishopPiece : ChessPiece
         base.SetLocalPosition(endPoint, row, col);
         if (!((this.col == col) && (this.row == row)))
         {
-            PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col);
+            PieceManager.Instance.SetExistChessPieces(this.row, this.col, row, col, (int)chessType);
             SetColRow(row, col);
         }
     }

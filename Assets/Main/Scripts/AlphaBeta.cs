@@ -21,7 +21,7 @@ public class AlphaBeta : MonoBehaviour
         int alpha = MIN;
         int beta = MAX;
         int bestValue = MIN;
-        tempChess = PieceManager.Instance.GetChessPieces();
+        // tempChess = PieceManager.Instance.GetChessPieces();
         List<ChessPiece> tempColorChess = PieceManager.Instance.GetColorChessPieces(GameManager.Instance.GetTurn());
         int[] bestMove = new int[4]; // Direction
 
