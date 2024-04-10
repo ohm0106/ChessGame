@@ -2259,6 +2259,7 @@ GameObject:
   m_Component:
   - component: {fileID: 626710897}
   - component: {fileID: 626710898}
+  - component: {fileID: 626710899}
   m_Layer: 0
   m_Name: Chess
   m_TagString: Untagged
@@ -2298,6 +2299,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chessMaterialData: {fileID: 11400000, guid: de34ff8b5c8bc4a4fb05dae1f694f84d, type: 2}
+--- !u!114 &626710899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 626710896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c40584d1253dbc6428770f2ef061f133, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &632165792
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3155,6 +3168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isBlackTurn: 0
+  isWorking: 0
 --- !u!4 &884803436
 Transform:
   m_ObjectHideFlags: 0
@@ -8784,11 +8798,11 @@ RectTransform:
   m_Father: {fileID: 663683788}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -263.5, y: -158.5}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: -0.00048828125, y: 0}
   m_SizeDelta: {x: 160, y: 30}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &2088351884
 MonoBehaviour:
   m_ObjectHideFlags: 0

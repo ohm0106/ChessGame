@@ -135,19 +135,10 @@ public class PieceManager : Singleton<PieceManager>
         }
     }
 
-    public void SetExistChessPieces(int perR , int perC, int curR , int curC, int value)
+    public void SetExistChessPieces(int preR , int preC, int curR , int curC, int value)
     {
-        if (CheckExistChessPieces(perR, perC))
-        {
-            existChessPieces[curR, curC] = value;
-            existChessPieces[perR, perC] = 0;
-
-            //Debug.Log("cur" + existChessPieces[curRow, curCol].gameObject.name + " / Check " + (existChessPieces[preRow, preCol] == null));
-        }
-        else
-        {
-            existChessPieces[perR, perC] = value;
-        }
+        existChessPieces[curR, curC] = value;
+        existChessPieces[preR, preC] = 0;
     }
 
     void ConvertNameToIndices(string name, out int row, out int col)
@@ -273,7 +264,7 @@ public class PieceManager : Singleton<PieceManager>
                             {
                                 DistroyChessPiece(GetExistChessPiece(tempB[0], tempB[1]));
                                 curChessPiece.SetLocalPosition(destination, tempB[0], tempB[1]);
-                                existChessPieces[tempB[0], tempB[1]] = (int)curChessPiece.GetChessPieceType();
+                                //existChessPieces[tempB[0], tempB[1]] = (int)curChessPiece.GetChessPieceType();
                                 curChessPiece = null;
                                 ResetAllBoard(); 
                             }
@@ -297,7 +288,7 @@ public class PieceManager : Singleton<PieceManager>
                                 int[] preTemp = curChessPiece.GetColRow();
                             }
                             curChessPiece.SetLocalPosition(destination, temp[0], temp[1]);
-                            existChessPieces[temp[0], temp[1]] = (int)curChessPiece.GetChessPieceType();
+                            //existChessPieces[temp[0], temp[1]] = (int)curChessPiece.GetChessPieceType();
                             curChessPiece = null;
                         }
                         else
@@ -306,7 +297,7 @@ public class PieceManager : Singleton<PieceManager>
                             {
                                 DistroyChessPiece(GetExistChessPiece(temp[0], temp[1]));
                                 curChessPiece.SetLocalPosition(destination, temp[0], temp[1]);
-                                existChessPieces[temp[0], temp[1]] = (int)curChessPiece.GetChessPieceType();
+                                //existChessPieces[temp[0], temp[1]] = (int)curChessPiece.GetChessPieceType();
                                 curChessPiece = null;
                                 ResetAllBoard();
                             }
@@ -398,10 +389,19 @@ public class PieceManager : Singleton<PieceManager>
 
     public int[,] GetChessPieces() { return existChessPieces; }
 
-    public List<ChessPiece> GetColorChessPieces (bool isBlack)
+    public int[,] GetColorChessPieces(bool isBlack)
     {
-        return isBlack ? blackChessPieces : whiteChessPieces;
+        int[,] temp = new int[8, 8];
+
+        foreach (var chess in (isBlack? blackChessPieces: whiteChessPieces))
+        {
+            int[] pos = chess.GetColRow();
+            temp[pos[0], pos[1]] = (int)chess.GetChessPieceType();
+        }
+
+        return temp;
     }
+
   
     public ChessPiece GetExistChessPiece(int r, int c)
     {
