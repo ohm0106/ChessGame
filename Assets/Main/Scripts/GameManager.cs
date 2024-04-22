@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AlphaBeta))]
 public class GameManager : Singleton<GameManager>
 {
     [SerializeField]
@@ -10,9 +11,12 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     bool isWorking;
 
+    AlphaBeta alphaBeta;
+
     void Start()
     {
         StartGame();
+        alphaBeta = GetComponent<AlphaBeta>();
     }
 
     public void CheckPos()
@@ -36,6 +40,8 @@ public class GameManager : Singleton<GameManager>
         while (isWorking)
         {
             //Black Turn 
+            int[] movePos = alphaBeta.FindBestMove(9);
+            Debug.Log(movePos);
             yield return new WaitUntil(() => !isBlackTurn); 
             //White Turn
             Debug.Log("Turn CHange!!!!!!");

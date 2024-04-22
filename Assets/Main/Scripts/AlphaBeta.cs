@@ -5,123 +5,76 @@ using UnityEngine;
 
 public class AlphaBeta : MonoBehaviour
 {
-    private const int MAX = int.MaxValue; // User 
-    private const int MIN = int.MinValue; // AI Bot 
 
-    ChessPiece[,] tempChess;
-    int[,] temp;
-    int[,] reversetemp;
+    // ChessPiece[,] tempChess;
 
-    // 0. 게임 종료 여부를 확인 한다 . ( 재귀 함수 이기 때문에 해당 내용 필수 ) 
-    // 1. 현재 체스판 상태를 가지고 온다.  ( 게임 상태 평가 : 흰 말 전체 점수 / 검정 말 전체 점수 )
-    // 2. Min Max 에 따라 말들의 전체 이동 경로를 가지고 온다. 
-    // 3. 움직임을 평가한다. 
+    int[] bestMove; // Move Position
 
-    //[Todo] : PieceManager에서 실시간 상태를 int 형으로 수치화 할 것. 
+// 0. 말이 
 
     public int[] FindBestMove(int depth)
     {
-        int alpha = MIN;
-        int beta = MAX;
-        int bestValue = MIN;
         // tempChess = PieceManager.Instance.GetChessPieces();
-        int[] bestMove = new int[2]; // Move Position
 
-        temp = PieceManager.Instance.GetColorChessPieces(false);
-        reversetemp = PieceManager.Instance.GetColorChessPieces(true);
-        List<int[]> movePossibleList = new List<int[]>();
+        int[,] entireTemps = PieceManager.Instance.GetChessPieces();
+        int[,] alphaTemps = PieceManager.Instance.GetColorChessPieces(false);
+        int[,] betaTemps = PieceManager.Instance.GetColorChessPieces(true);
 
         for(int r = 0; r < 8; r++)
         {
             for (int c = 0; c < 8; c++)
             {
 
-                if (temp[r,c] != 0)
+                if (betaTemps[r,c] != 0)
                 {
-                      ChessPattern(ref movePossibleList, r, c, (ChessPieceType)temp[r, c], 1); // 흰 1 검 -1
+                    List<int[]> movePossibleList = ChessPattern( r, c, (ChessPieceType)alphaTemps[r, c], 1, betaTemps); // 흰 1 검 -1
+                    
+                    // 여기에 미니맥스 추가해줘 
                 }
 
             }
 
 
         }
-          
-
-        // 움직임을 수행하고 보드 평가값을 얻음
-        // 이 코드는 각 움직임마다 보드를 업데이트하고 평가함
-        // 이 부분은 게임에 따라서 구현해야 함
-
-
+        
         return null;
     }
 
+    int bestScore = 0;
 
-    public void ChessPattern(ref List<int[]> moves ,int row, int col, ChessPieceType type, int direction)
+
+
+    public List<int[]> ChessPattern( int row, int col, ChessPieceType type, int direction , int[,] isAlpha)
     {
+
+        if (type == ChessPieceType.None)
+            return null;
+
+
+        List<int[]> moves = new List<int[]>();
+
         switch (type)
         {
             case ChessPieceType.King:
-                int[][] possibleMovesKing = new int[][]
-                {
-                    new int[] { -1, -1 }, new int[] { -1, 0 }, new int[] { -1, 1 },
-                    new int[] { 0, -1 }, /* Current position */ new int[] { 0, 1 },
-                    new int[] { 1, -1 }, new int[] { 1, 0 }, new int[] { 1, 1 }
-                };
-
-                foreach (var move in possibleMovesKing)
-                {
-                    int newRow = row + move[0];
-                    int newCol = col + move[1];
-
-                    if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8 &&
-                        (IsSquareEmpty(newRow, newCol) || IsOpponentPiece(newRow, newCol)))
-                    {
-                        moves.Add(new int[] { row, col });
-                        moves.Add(new int[] {  newRow, newCol });
-                    }
-                }
-
-
+                moves.Add(new int[] { row, col + (1 * direction) });
+                moves.Add(new int[] { row, col - (1 * direction)});
+                moves.Add(new int[] { row + (1 * direction), col});
+                moves.Add(new int[] { row - (1 * direction), col});
+                moves.Add(new int[] { row + (1 * direction), col + (1 * direction)});
+                moves.Add(new int[] { row + (1 * direction), col - (1 * direction)});
+                moves.Add(new int[] { row - (1 * direction), col - (1 * direction)});
+                moves.Add(new int[] { row - (1 * direction), col + (1 * direction)});
                 break;
 
             case ChessPieceType.Queen:
-
-                break;
-
-            case ChessPieceType.Knight:
-                int[][] possibleMovesKnight = new int[][]
-                {
-                    new int[] { -2, -1 }, new int[] { -2, 1 },
-                    new int[] { -1, -2 }, new int[] { -1, 2 },
-                    new int[] { 1, -2 }, new int[] { 1, 2 },
-                    new int[] { 2, -1 }, new int[] { 2, 1 }
-                };
-
-                foreach (var move in possibleMovesKnight)
-                {
-                    int newRow = row + move[0];
-                    int newCol = col + move[1];
-
-                    // 새로운 위치가 체스보드 범위 안에 있으면서
-                    // 비어 있거나 상대방의 말이 있는 경우에만 추가
-                    if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8 &&
-                        (IsSquareEmpty(newRow, newCol) || IsOpponentPiece(newRow, newCol)))
-                    {
-                        moves.Add(new int[] { row, col });
-                        moves.Add(new int[] { newRow, newCol });
-                    }
-                }
-                break;
-
-            case ChessPieceType.Bishop:
                 for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--)
                 {
-                    if (IsSquareEmpty(i, j))
+                    if (IsSquareEmpty(i, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, j });
                     }
-                    else if (IsOpponentPiece(i, j))
+                    else if (IsOpponentPiece(i, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, j });
@@ -134,12 +87,12 @@ public class AlphaBeta : MonoBehaviour
                 // 오른쪽 위 대각선
                 for (int i = row - 1, j = col + 1; i >= 0 && j < 8; i--, j++)
                 {
-                    if (IsSquareEmpty(i, j))
+                    if (IsSquareEmpty(i, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, j });
                     }
-                    else if (IsOpponentPiece(i, j))
+                    else if (IsOpponentPiece(i, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, j });
@@ -152,13 +105,13 @@ public class AlphaBeta : MonoBehaviour
                 // 왼쪽 아래 대각선
                 for (int i = row + 1, j = col - 1; i < 8 && j >= 0; i++, j--)
                 {
-                    if (IsSquareEmpty(i, j))
+                    if (IsSquareEmpty(i, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, j });
                     }
-                       
-                    else if (IsOpponentPiece(i, j))
+
+                    else if (IsOpponentPiece(i, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, j });
@@ -171,12 +124,169 @@ public class AlphaBeta : MonoBehaviour
                 // 오른쪽 아래 대각선
                 for (int i = row + 1, j = col + 1; i < 8 && j < 8; i++, j++)
                 {
-                    if (IsSquareEmpty(i, j))
+                    if (IsSquareEmpty(i, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, j });
                     }
-                    else if (IsOpponentPiece(i, j))
+                    else if (IsOpponentPiece(i, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, j });
+                        break;
+                    }
+                    else
+                        break;
+                }
+
+                break;
+                for (int i = row - 1; i >= 0; i--)
+                {
+                    if (IsSquareEmpty(i, col, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, col });
+                    }
+                    else if (IsOpponentPiece(i, col, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, col });
+                        break;
+                    }
+                    else
+                        break;
+                }
+
+                // 하(아래로 이동)
+                for (int i = row + 1; i < 8; i++)
+                {
+                    if (IsSquareEmpty(i, col, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, col });
+                    }
+                    else if (IsOpponentPiece(i, col, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, col });
+                        break;
+                    }
+                    else
+                        break;
+                }
+
+                // 좌(왼쪽으로 이동)
+                for (int j = col - 1; j >= 0; j--)
+                {
+                    if (IsSquareEmpty(row, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { row, j });
+                    }
+                    else if (IsOpponentPiece(row, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { row, j });
+                        break;
+                    }
+                    else
+                        break;
+                }
+
+                // 우(오른쪽으로 이동)
+                for (int j = col + 1; j < 8; j++)
+                {
+                    if (IsSquareEmpty(row, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { row, j });
+                    }
+                    else if (IsOpponentPiece(row, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { row, j });
+                        break;
+                    }
+                    else
+                        break;
+                }
+            case ChessPieceType.Knight:
+
+                moves.Add(new int[] { row + 1, col + 2 });
+                moves.Add(new int[] { row + 2, col + 1 });
+                moves.Add(new int[] { row + 1, col - 2 });
+                moves.Add(new int[] { row + 2, col - 1 });
+                moves.Add(new int[] { row - 1, col + 2 });
+                moves.Add(new int[] { row - 2, col + 1 });
+                moves.Add(new int[] { row - 1, col - 2 });
+                moves.Add(new int[] { row - 2, col - 1 });
+
+                break;
+
+            case ChessPieceType.Bishop:
+                for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--)
+                {
+                    if (IsSquareEmpty(i, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, j });
+                    }
+                    else if (IsOpponentPiece(i, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, j });
+                        break;
+                    }
+                    else
+                        break;
+                }
+
+                // 오른쪽 위 대각선
+                for (int i = row - 1, j = col + 1; i >= 0 && j < 8; i--, j++)
+                {
+                    if (IsSquareEmpty(i, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, j });
+                    }
+                    else if (IsOpponentPiece(i, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, j });
+                        break;
+                    }
+                    else
+                        break;
+                }
+
+                // 왼쪽 아래 대각선
+                for (int i = row + 1, j = col - 1; i < 8 && j >= 0; i++, j--)
+                {
+                    if (IsSquareEmpty(i, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, j });
+                    }
+                       
+                    else if (IsOpponentPiece(i, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, j });
+                        break;
+                    }
+                    else
+                        break;
+                }
+
+                // 오른쪽 아래 대각선
+                for (int i = row + 1, j = col + 1; i < 8 && j < 8; i++, j++)
+                {
+                    if (IsSquareEmpty(i, j, isAlpha))
+                    {
+                        moves.Add(new int[] { row, col });
+                        moves.Add(new int[] { i, j });
+                    }
+                    else if (IsOpponentPiece(i, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, j });
@@ -190,12 +300,12 @@ public class AlphaBeta : MonoBehaviour
             case ChessPieceType.Rook:
                 for (int i = row - 1; i >= 0; i--)
                 {
-                    if (IsSquareEmpty(i, col))
+                    if (IsSquareEmpty(i, col, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, col });
                     }
-                    else if (IsOpponentPiece(i, col))
+                    else if (IsOpponentPiece(i, col, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, col });
@@ -208,12 +318,12 @@ public class AlphaBeta : MonoBehaviour
                 // 하(아래로 이동)
                 for (int i = row + 1; i < 8; i++)
                 {
-                    if (IsSquareEmpty(i, col))
+                    if (IsSquareEmpty(i, col, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, col });
                     }
-                    else if (IsOpponentPiece(i, col))
+                    else if (IsOpponentPiece(i, col, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { i, col });
@@ -226,12 +336,12 @@ public class AlphaBeta : MonoBehaviour
                 // 좌(왼쪽으로 이동)
                 for (int j = col - 1; j >= 0; j--)
                 {
-                    if (IsSquareEmpty(row, j))
+                    if (IsSquareEmpty(row, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { row, j });
                     }
-                    else if (IsOpponentPiece(row, j))
+                    else if (IsOpponentPiece(row, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { row, j });
@@ -244,12 +354,12 @@ public class AlphaBeta : MonoBehaviour
                 // 우(오른쪽으로 이동)
                 for (int j = col + 1; j < 8; j++)
                 {
-                    if (IsSquareEmpty(row, j))
+                    if (IsSquareEmpty(row, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { row, j });
                     }
-                    else if (IsOpponentPiece(row, j))
+                    else if (IsOpponentPiece(row, j, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { row, j });
@@ -262,7 +372,7 @@ public class AlphaBeta : MonoBehaviour
 
             case ChessPieceType.Pawn:
 
-                if (IsSquareEmpty(row + direction, col))
+                if (IsSquareEmpty(row + direction, col, isAlpha))
                 {
 
                     moves.Add(new int[] { row, col });
@@ -271,7 +381,7 @@ public class AlphaBeta : MonoBehaviour
 
                 if ((direction == 1 && row == 1) || (direction == -1 && row == 6))
                 {
-                    if (IsSquareEmpty(row + direction, col) && IsSquareEmpty(row + 2 * direction, col))
+                    if (IsSquareEmpty(row + direction, col, isAlpha) && IsSquareEmpty(row + 2 * direction, col, isAlpha))
                     {
                         moves.Add(new int[] { row, col });
                         moves.Add(new int[] { row + 2 * direction, col });
@@ -279,12 +389,12 @@ public class AlphaBeta : MonoBehaviour
                 }
 
                 // 대각선으로 적군을 잡는 경우
-                if (IsOpponentPiece(row + direction, col - 1))
+                if (IsOpponentPiece(row + direction, col - 1, isAlpha))
                 {
                     moves.Add(new int[] { row, col });
                     moves.Add(new int[] { row + direction, col - 1 });
                 }
-                if (IsOpponentPiece(row + direction, col + 1))
+                if (IsOpponentPiece(row + direction, col + 1, isAlpha))
                 {
                     moves.Add(new int[] { row, col });
                     moves.Add(new int[] { row + direction, col - 1 });
@@ -293,18 +403,18 @@ public class AlphaBeta : MonoBehaviour
                 break;
         }
 
-        moves = moves.Distinct().ToList();
-
-
+        return moves;
 
     }
 
 
-    private bool IsSquareEmpty(int row, int col)
+    private bool IsSquareEmpty(int row, int col, int[,] temp)
     {
         // 좌표가 체스보드의 범위를 벗어나는지 확인
         if (row < 0 || row >= 8 || col < 0 || col >= 8 )
             return false;
+
+ 
 
         // 해당 위치의 값이 0이면 비어 있는 것으로 간주
         if (temp[row, col] == 0)
@@ -313,19 +423,30 @@ public class AlphaBeta : MonoBehaviour
         return true;
     }
 
-    private bool IsOpponentPiece(int row, int col)
+    private bool IsOpponentPiece(int row, int col, int[,] temp)
     {
         if (row < 0 || row >= 8 || col < 0 || col >= 8)
             return false;
 
-        if (reversetemp[row, col] != 0)
+
+
+        if (temp[row, col] != 0)
         {
-
-
             return true;
         }
 
         return false;
       
+    }
+
+    int GetValue(int[,] temp)
+    {
+        int sum = 0;
+        foreach (int i in temp)
+        {
+            sum += i;
+        }
+        Debug.Log(sum);
+        return sum;
     }
 }
